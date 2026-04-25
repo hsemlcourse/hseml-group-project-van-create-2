@@ -1,87 +1,92 @@
-[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/kOqwghv0)
-# ML Project — [Название проекта]
+# ML Project - Предсказание справедливой цены подержанных смартфонов и ноутбуков
 
-**Студент:** [ФИО / Student ID]
-
-**Группа:** [Группа]
-
-
-## Оглавление
-
-1. [Описание задачи](#описание-задачи)
-2. [Структура репозитория](#структура-репозитория)
-3. [Запуски](#быстрый-старт)
-4. [Данные](#данные)
-5. [Результаты](#результаты)
-7. [Отчёт](#отчёт)
-
+**Студент:** Елисеев Иван Дмитриевич  
+**Группа:** БИВ233
 
 ## Описание задачи
 
-<!-- Кратко опишите задачу: что предсказываем, какой датасет, метрика качества -->
+**Задача:** Регрессия - предсказание рыночной цены б/у смартфона или ноутбука по его характеристикам.
 
-**Задача:** [Классификация / Регрессия / Кластеризация / ...]
+**Данные:**
+- [Used Phones & Tablets Pricing Dataset](https://www.kaggle.com/datasets/ahsan81/used-handheld-device-data) - 3454 объявления о б/у смартфонах
+- [Laptop Price Dataset](https://www.kaggle.com/datasets/muhammetvarl/laptop-price) - 1303 ноутбука
 
-**Датасет:** [Название и источник датасета]
+Итого: **4661 объявление**, 27 признаков после feature engineering.
 
-**Целевая метрика:** [Accuracy / F1 / RMSE / ...]
-
+**Целевая метрика:** MAPE (Mean Absolute Percentage Error) - интуитивно понятна в контексте цен. Дополнительно: MAE, RMSE.
 
 ## Структура репозитория
-Опишите структуру проекта, сохранив при этом верхнеуровневые папки. Можно добавить новые при необходимости.
+
 ```
 .
-├── data
-│   ├── processed               # Очищенные и обработанные данные
-│   └── raw                     # Исходные файлы
-├── models                      # Сохранённые модели 
-├── notebooks
-│   ├── 01_eda.ipynb            # EDA
-│   ├── 02_baseline.ipynb       # Baseline-модель
-│   └── 03_experiments.ipynb    # Эксперименты и ablation study
-├── presentation                # Презентация для защиты
-├── report
-│   ├── images                  # Изображения для отчёта
-│   └── report.md               # Финальный отчёт
-├── src
-│   ├── preprocessing.py        # Предобработка данных
-│   └── modeling.py             # Обучение и оценка моделей
-├── tests
-│   └── test.py                 # Тесты пайплайна
-├── requirements.txt
-└── README.md
+├── data/
+│   ├── raw/                    # исходные CSV (не в git)
+│   └── processed/              # очищенные данные (не в git)
+├── models/                     # сохранённые модели (не в git)
+├── notebooks/
+│   ├── 01_eda.ipynb            # EDA: распределения, корреляции, выбросы
+│   ├── 02_baseline.ipynb       # Ridge baseline без feature engineering
+│   └── 03_experiments.ipynb    # RF, XGBoost, LightGBM, CatBoost, PCA, Stacking
+├── src/
+│   ├── preprocessing/
+│   │   ├── clean.py            # очистка сырых данных, объединение датасетов
+│   │   └── features.py         # feature engineering
+│   └── models/
+│       ├── evaluate.py         # метрики и train/val/test split
+│       └── train.py            # сборка матрицы признаков, обучение финальной модели
+├── tests/
+│   └── test_pipeline.py        # 34 unit-теста
+├── Dockerfile
+├── docker-compose.yml
+└── requirements.txt
 ```
 
 ## Запуск
 
-Этот блок замените способом запуска вашего сервиса.
 ```bash
-# 1. Клонировать репозиторий
-git clone <url>
-cd <repo-name>
-
-# 2. Создать виртуальное окружение
-python -m venv .venv
-source .venv/bin/activate   # Linux/macOS
-# .venv\Scripts\activate    # Windows
-
-# 3. Установить зависимости
+git clone <url> && cd <repo>
+python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-## Данные
-- `data/raw/` — исходные файлы
-- `data/processed/` — предобработанные данные
+Скачать данные в `data/raw/`:
+- `used_device_data.csv` с kaggle.com/datasets/ahsan81/used-handheld-device-data
+- `laptop_price.csv` с kaggle.com/datasets/muhammetvarl/laptop-price
 
+```bash
+# Очистка и feature engineering
+python3 -m src.preprocessing.clean
+python3 -m src.preprocessing.features
+
+# Обучение финальной модели
+python3 -m src.models.train
+
+# Тесты
+python3 -m pytest tests/ -v
+```
+
+### Docker
+
+```bash
+docker-compose run preprocess   # очистка данных
+docker-compose run train        # обучение модели
+docker-compose run test         # тесты
+```
 
 ## Результаты
-Здесь коротко выпишите результаты.
-| Модель | [Метрика 1] | [Метрика 2] | Примечание |
-|--------|-------------|-------------|------------|
-| Baseline | — | — | |
-| Лучшая модель | — | — | |
 
+| Модель | MAE (руб.) | RMSE (руб.) | MAPE | Набор |
+|--------|-----------|------------|------|-------|
+| Ridge Baseline | 18 961 | 26 592 | 42.3% | val |
+| Ridge + PCA | 16 841 | 25 146 | 34.5% | val |
+| RandomForest | 13 072 | 20 768 | 22.8% | val |
+| XGBoost | 12 949 | 20 145 | 22.6% | val |
+| CatBoost | 12 640 | 19 305 | 22.8% | val |
+| Stacking (RF+LGB->Ridge) | 12 644 | 19 950 | 22.9% | val |
+| LightGBM (num only) | 12 550 | 19 754 | 22.3% | val |
+| **LightGBM (all features)** | **11 878** | **18 050** | **21.3%** | val |
+| **LightGBM (all features)** | **11 747** | **18 191** | **19.6%** | **test** |
 
 ## Отчёт
 
-Финальный отчёт: [`report/report.md`](report/report.md)
+[`report/report.md`](report/report.md)

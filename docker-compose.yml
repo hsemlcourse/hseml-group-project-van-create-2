@@ -1,0 +1,20 @@
+services:
+  preprocess:
+    build: .
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+    command: python3 -m src.preprocessing.clean
+
+  train:
+    build: .
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+    command: python3 -m src.models.train
+
+  test:
+    build: .
+    volumes:
+      - ./data:/app/data
+    command: python3 -m pytest tests/ -v
