@@ -3,10 +3,11 @@ Feature matrix builder and final model training script.
 Run: python3 -m src.models.train
 """
 
+from pathlib import Path
+
 import joblib
 import numpy as np
 import pandas as pd
-from pathlib import Path
 
 RANDOM_SEED = 42
 np.random.seed(RANDOM_SEED)
@@ -52,7 +53,8 @@ def load_model(path: Path = MODEL_PATH):
 
 if __name__ == "__main__":
     import lightgbm as lgb
-    from src.models.evaluate import split_data, regression_metrics, print_metrics
+
+    from src.models.evaluate import print_metrics, regression_metrics, split_data
 
     df = pd.read_csv(FEATURES_PATH)
     X, y, cat_indices, col_names = build_feature_matrix(df)

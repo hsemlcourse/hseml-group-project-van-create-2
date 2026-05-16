@@ -1,7 +1,8 @@
 import re
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
-from pathlib import Path
 
 PHONES_PATH = Path("data/raw/used_device_data.csv")
 LAPTOPS_PATH = Path("data/raw/laptop_price.csv")
@@ -115,6 +116,10 @@ def clean_laptops(path: Path = LAPTOPS_PATH) -> pd.DataFrame:
 
 def clean_all() -> pd.DataFrame:
     df = pd.concat([clean_phones(), clean_laptops()], ignore_index=True)
+    before = len(df)
+    df = df.drop_duplicates().reset_index(drop=True)
+    if (dropped := before - len(df)) > 0:
+        print(f"Dropped {dropped} duplicate rows")
     lo, hi = df["price"].quantile(0.01), df["price"].quantile(0.99)
     return df[(df["price"] >= lo) & (df["price"] <= hi)].reset_index(drop=True)
 

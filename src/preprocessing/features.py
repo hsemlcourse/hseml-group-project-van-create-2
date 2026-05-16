@@ -4,9 +4,10 @@ Input: data/processed/listings_clean.csv
 Output: data/processed/listings_features.csv
 """
 
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
-from pathlib import Path
 
 CLEAN_PATH = Path("data/processed/listings_clean.csv")
 FEATURES_PATH = Path("data/processed/listings_features.csv")
