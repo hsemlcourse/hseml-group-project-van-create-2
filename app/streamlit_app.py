@@ -1,7 +1,9 @@
+import os
+
 import requests
 import streamlit as st
 
-API_URL = "http://api:8000"
+API_URL = os.getenv("API_URL", "http://localhost:8000")
 
 st.title("Оценка цены б/у устройства")
 st.caption("Предсказание рыночной цены подержанного смартфона или ноутбука.")
