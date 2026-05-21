@@ -75,6 +75,8 @@ def predict(features: DeviceFeatures):
     df = _row_to_df(features)
     df = _preprocess(df)
 
+    df["price"] = 0.0
+
     try:
         X, _, _, _ = build_feature_matrix(df)
     except Exception as e:
@@ -85,5 +87,5 @@ def predict(features: DeviceFeatures):
 
     return PredictionResponse(
         price_rub=round(price, 2),
-        price_rub_formatted=f"{price:,.0f} руб.",
+        price_rub_formatted=f"{price:,.0f} руб.".replace(",", " "),
     )
