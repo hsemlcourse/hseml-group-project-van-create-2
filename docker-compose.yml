@@ -18,3 +18,23 @@ services:
     volumes:
       - ./data:/app/data
     command: python3 -m pytest tests/ -v
+
+  api:
+    build: .
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+    ports:
+      - "8000:8000"
+    command: uvicorn src.api.main:app --host 0.0.0.0 --port 8000
+
+  streamlit:
+    build: .
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+    ports:
+      - "8501:8501"
+    depends_on:
+      - api
+    command: streamlit run app/streamlit_app.py --server.port 8501 --server.address 0.0.0.0

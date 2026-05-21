@@ -114,7 +114,33 @@
 
 ## 7. Деплой
 
-*(Будет добавлено в CP3)*
+**Стек:** FastAPI (REST API) + Streamlit (веб-интерфейс), запускаются через docker-compose.
+
+**Запуск:**
+```bash
+docker-compose run --rm train
+docker-compose up api streamlit
+```
+
+**API:** `POST /predict` - принимает характеристики устройства, возвращает цену в рублях.
+
+```
+POST http://localhost:8000/predict
+{
+  "device_type": "smartphone",
+  "brand": "Apple",
+  "storage_gb": 128,
+  "ram_gb": 6,
+  ...
+}
+-> { "price_rub": 45230.0, "price_rub_formatted": "45 230 руб." }
+```
+
+`GET /health` - проверка работоспособности сервиса.
+
+Документация: `http://localhost:8000/docs` (автогенерация FastAPI).
+
+**Интерфейс:** Streamlit на `http://localhost:8501` - форма с параметрами устройства, кнопка «Рассчитать цену».
 
 ---
 
